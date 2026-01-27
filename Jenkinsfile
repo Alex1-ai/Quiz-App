@@ -36,17 +36,19 @@ pipeline {
         }
 
         stage("test") {
-            when {
-                 expression {
-                     params.executeTests
-                 }
+            steps {
+                when {
+                     expression {
+                         params.executeTests
+                     }
+
+                }
+                script {
+                    gv.testApp()
+
+                }
 
             }
-            script {
-                gv.testApp()
-
-            }
-
         }
 
 
