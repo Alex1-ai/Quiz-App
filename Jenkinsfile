@@ -79,7 +79,7 @@ pipeline {
         }
 
 
-        stage("build image") {
+        stage("build and push image") {
            when {
                 expression {
                    BRANCH_NAME == 'main' || BRANCH_NAME == 'jenkins-shared-lib'
@@ -91,6 +91,10 @@ pipeline {
                script {
 
                     buildImage 'chidi123/quiz-app:jma-2.5'
+                    dockerLogin()
+                    dockerPush 'chidi123/quiz-app:jma-2.5'
+
+
 
 //                      gv.buildImage()
 //                   echo "building the docker image..."
