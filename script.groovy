@@ -2,12 +2,22 @@ def buildApp() {
 
     echo 'building the application ....'
     echo "building version ${params.VERSION}"
+
+//    sh 'mvn package'
+}
+
+def buildDockerImage() {
+    echo "building the docker image..."
+//    sh ""
+
 }
 
 
 def testApp() {
 
     echo 'testing the application ....'
+
+    sh 'mvn test'
 }
 
 def deployApp() {

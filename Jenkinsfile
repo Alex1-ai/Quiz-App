@@ -3,6 +3,10 @@ def gv
 pipeline {
     agent any
 
+    tools {
+        maven "Maven"
+    }
+
     parameters {
         choice(name: 'VERSION', choices: ['1.1.0', '1.2.0', '1.3.0'], description: '')
         booleanParam(name: 'executeTests', defaultValue: true, description:'')
@@ -47,6 +51,8 @@ pipeline {
                 script {
                     gv.testApp()
 
+                    sh 'mvn test'
+
                 }
 
             }
@@ -57,6 +63,29 @@ pipeline {
             steps {
                script {
                   gv.buildApp()
+
+                  sh 'mvn package'
+
+               }
+
+            }
+
+        }
+
+
+        stage("build image") {
+            steps {
+               script {
+                  echo "building the docker image..."
+
+                  withCredentials(UsernamePassword(credentialsId: 'docker-hub-repo', passwordVariable: 'PASS', usernameVariable: 'USER')) {
+                      sh 'docker build -t chidi123/quiz-app:jma-2.0 .'
+                      sh "echo $PASS docker login -u $USER --password-stdin"
+                      sh "docker push chidi123/quiz-app:jma-2.0"
+                  }
+
+
+
 
                }
 
@@ -79,9 +108,11 @@ pipeline {
             }
             steps {
                script {
+
+                  echo "Deploying version ${params.VERSION} to ${ENV}"
                   gv.deployApp()
 
-                  echo "Deploying to ${ENV}"
+
 
                }
 
