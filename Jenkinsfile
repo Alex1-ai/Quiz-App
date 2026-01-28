@@ -1,5 +1,9 @@
+#!/usr/bin/env groovy
 
+@Library('jenkins-shared-library')
 def gv
+
+
 pipeline {
     agent any
 
@@ -58,16 +62,16 @@ pipeline {
 
            when {
                 expression {
-                   BRANCH_NAME == 'main'
+                   BRANCH_NAME == 'main' || BRANCH_NAME == 'jenkins-shared-lib'
                 }
 
                 }
             steps {
                script {
-                  gv.buildApp()
-
-                  sh 'mvn package'
-
+//                   gv.buildJar()
+//
+//                   sh 'mvn package'
+                   buildJar()
                }
 
             }
@@ -78,7 +82,7 @@ pipeline {
         stage("build image") {
            when {
                 expression {
-                   BRANCH_NAME == 'main'
+                   BRANCH_NAME == 'main' || BRANCH_NAME == 'jenkins-shared-lib'
                 }
 
                 }
@@ -86,7 +90,9 @@ pipeline {
             steps {
                script {
 
-                     gv.buildDockerImage()
+                    buildImage()
+
+//                      gv.buildImage()
 //                   echo "building the docker image..."
 //
 //                   withCredentials([usernamePassword(credentialsId: 'docker-hub-repo', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
