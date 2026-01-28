@@ -109,7 +109,7 @@ pipeline {
             steps {
                script {
 
-                  echo "Deploying version ${params.VERSION} to ${ENV}"
+                  echo "Deploying version ${params.VERSION}"
 //                   gv.deployApp()
 
 
