@@ -8,7 +8,12 @@ def buildApp() {
 
 def buildDockerImage() {
     echo "building the docker image..."
-//    sh ""
+
+    withCredentials([usernamePassword(credentialsId: 'docker-hub-repo', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
+        sh 'docker build -t chidi123/quiz-app:jma-2.0 .'
+        sh "echo $PASS docker login -u $USER --password-stdin"
+        sh "docker push chidi123/quiz-app:jma-2.0"
+    }
 
 }
 
