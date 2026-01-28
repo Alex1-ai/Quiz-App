@@ -90,7 +90,7 @@ pipeline {
             steps {
                script {
 
-                    buildImage()
+                    buildImage 'chidi123/quiz-app:jma-2.5'
 
 //                      gv.buildImage()
 //                   echo "building the docker image..."
