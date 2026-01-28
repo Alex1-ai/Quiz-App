@@ -22,12 +22,14 @@ def testApp() {
 
     echo 'testing the application ....'
 
+    echo "Executing pipeline for branch $BRANCH_NAME"
+
     sh 'mvn test'
 }
 
 def deployApp() {
     echo 'deploying the application....'
-    echo "deploying version ${params.VERSION}"
+//    echo "deploying version ${params.VERSION}"
 
 //                echo "deploying with ${SERVER_CREDENTIALS}"
 //

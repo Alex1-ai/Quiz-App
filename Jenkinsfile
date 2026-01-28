@@ -41,12 +41,7 @@ pipeline {
 
         stage("test") {
 
-                when {
-                     expression {
-                         params.executeTests
-                     }
 
-                }
          steps {
                 script {
                     gv.testApp()
@@ -60,6 +55,13 @@ pipeline {
 
 
         stage("build") {
+
+           when {
+                expression {
+                   BRANCH_NAME == 'main'
+                }
+
+                }
             steps {
                script {
                   gv.buildApp()
@@ -74,6 +76,13 @@ pipeline {
 
 
         stage("build image") {
+           when {
+                expression {
+                   BRANCH_NAME == 'main'
+                }
+
+                }
+
             steps {
                script {
 
@@ -97,7 +106,12 @@ pipeline {
 
 
         stage("deploy") {
+           when {
+                expression {
+                   BRANCH_NAME == 'main'
+                }
 
+                }
 //             input {
 //                message "Select the environment to deploy to"
 //                ok "Done"
