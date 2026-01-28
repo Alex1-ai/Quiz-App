@@ -62,7 +62,7 @@ pipeline {
 
            when {
                 expression {
-                   BRANCH_NAME == 'main'
+                   BRANCH_NAME == 'main' || BRANCH_NAME == 'jenkins-shared-lib'
                 }
 
                 }
@@ -82,7 +82,7 @@ pipeline {
         stage("build image") {
            when {
                 expression {
-                   BRANCH_NAME == 'main'
+                   BRANCH_NAME == 'main' || BRANCH_NAME == 'jenkins-shared-lib'
                 }
 
                 }
