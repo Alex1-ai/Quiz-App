@@ -1,5 +1,9 @@
+#!/usr/bin/env groovy
 
+@Library('jenkins-shared-library')
 def gv
+
+
 pipeline {
     agent any
 
@@ -64,10 +68,10 @@ pipeline {
                 }
             steps {
                script {
-                  gv.buildApp()
-
-                  sh 'mvn package'
-
+//                   gv.buildJar()
+//
+//                   sh 'mvn package'
+                   buildJar()
                }
 
             }
@@ -86,7 +90,9 @@ pipeline {
             steps {
                script {
 
-                     gv.buildDockerImage()
+                    buildImage()
+
+//                      gv.buildImage()
 //                   echo "building the docker image..."
 //
 //                   withCredentials([usernamePassword(credentialsId: 'docker-hub-repo', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
