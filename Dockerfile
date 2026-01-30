@@ -1,11 +1,12 @@
-FROM openjdk-jre-alpine
+FROM eclipse-temurin:17-jre-alpine
 
 EXPOSE 8080
 
 COPY ./target/quizapp-*.jar /usr/app/
 WORKDIR /usr/app
 
-CMD java -jar quizapp-*.jar
+CMD ["java", "-jar", "quizapp-*.jar"]
+
 
 
 
