@@ -78,25 +78,28 @@ def githubCommit() {
             set -e
             
             # Configure git
-            git config user.email "alexanderemmanuel1719@gmail.com"
-            git config user.name "Alex1-ai"
+            git config --global user.email "jekins@example.com"
+            git config --global user.name "jekins"
             
             # Check current branch/state
             echo "Current branch/state:"
             git branch -a || true
             git status
+            git config --list
             
             # Ensure we're on a branch, not in detached HEAD
             # Try to checkout jenkins-jobs branch or create it
-            git checkout jenkins-jobs 2>/dev/null || git checkout -b jenkins-jobs
+            # git checkout jenkins-jobs 2/>/dev/null || git checkout -b jenkins-jobs
             
             # Add and commit changes
             git add pom.xml
             git commit -m "ci: version bump" || echo "No changes to commit"
             
+            git remote set-url origin git push https://${GIT_USER}:${GIT_PASS}@github.com/Alex1-ai/Quiz-App.git
+            
             # Push to the remote branch
             # Double quotes for proper variable expansion
-            git push https://${GIT_USER}:${GIT_PASS}@github.com/Alex1-ai/Quiz-App.git jenkins-jobs
+            git push origin HEAD:main
         '''
     }
 }
