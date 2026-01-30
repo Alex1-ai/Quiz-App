@@ -45,7 +45,7 @@ pipeline {
             steps {
                script {
 
-                  echo "adding groovy code"
+                  echo "adding automatic running"
                   gv = load "script.groovy"
 
                }
