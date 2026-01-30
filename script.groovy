@@ -71,7 +71,7 @@ def githubCommit() {
 
     withCredentials([
             usernamePassword(
-                    credentialsId: 'github-credentials',
+                    credentialsId: 'github-access-token-credentials',
                     usernameVariable: 'GIT_USER',
                     passwordVariable: 'GIT_PASS'
             )
