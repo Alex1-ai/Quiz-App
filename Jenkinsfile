@@ -1,5 +1,17 @@
+#!/usr/bin/env groovy
+
+// @Library('jenkins-shared-library')
+
+library identifier: 'jenkins-shared-library@main', retriever: modernSCM(
+   [$class: 'GitSCMSource',
+    remote: 'https://github.com/Alex1-ai/jenkins-shared-library',
+    credentialsId: 'github-credentials'
+   ]
+)
 
 def gv
+
+
 pipeline {
     agent any
 
@@ -58,16 +70,16 @@ pipeline {
 
            when {
                 expression {
-                   BRANCH_NAME == 'main'
+                   BRANCH_NAME == 'main' || BRANCH_NAME == 'jenkins-shared-lib'
                 }
 
                 }
             steps {
                script {
-                  gv.buildApp()
-
-                  sh 'mvn package'
-
+//                   gv.buildJar()
+//
+//                   sh 'mvn package'
+                   buildJar()
                }
 
             }
@@ -75,10 +87,10 @@ pipeline {
         }
 
 
-        stage("build image") {
+        stage("build and push image") {
            when {
                 expression {
-                   BRANCH_NAME == 'main'
+                   BRANCH_NAME == 'main' || BRANCH_NAME == 'jenkins-shared-lib'
                 }
 
                 }
@@ -86,7 +98,13 @@ pipeline {
             steps {
                script {
 
-                     gv.buildDockerImage()
+                    buildImage 'chidi123/quiz-app:jma-2.5'
+                    dockerLogin()
+                    dockerPush 'chidi123/quiz-app:jma-2.5'
+
+
+
+//                      gv.buildImage()
 //                   echo "building the docker image..."
 //
 //                   withCredentials([usernamePassword(credentialsId: 'docker-hub-repo', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
