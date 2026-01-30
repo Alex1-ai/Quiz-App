@@ -76,32 +76,26 @@ def githubCommit() {
     ]) {
         sh '''
             set -e
-            
+
             # Configure git
             git config --global user.email "jenkins@example.com"
             git config --global user.name "jenkins"
-            
+
             # Check current branch/state
             echo "Current branch/state:"
             git branch -a || true
             git status
-            git config --list
-            
-            # Checkout main branch
-            git checkout main
-            
-            # Add and commit changes
+
+            # Commit changes on detached HEAD
             git add pom.xml
             git commit -m "ci: version bump" || echo "No changes to commit"
-            
-            # Set remote URL with PAT
-            git remote set-url origin https://${GIT_USER}:${GIT_PASS}@github.com/Alex1-ai/Quiz-App.git
-            
-            # Push changes to main
-            git push origin main
+
+            # Push directly to main (force if needed)
+            git push https://${GIT_USER}:${GIT_PASS}@github.com/Alex1-ai/Quiz-App.git HEAD:main
         '''
     }
 }
+
 
 
 
