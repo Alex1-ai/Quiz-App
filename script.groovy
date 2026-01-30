@@ -82,13 +82,11 @@ def githubCommit() {
             git config user.email "jenkins@example.com"
             git config user.name "jenkins"
 
-            git status
-
             git add pom.xml
             git commit -m "ci: version bump" || echo "No changes to commit"
 
-            # IMPORTANT: -- separates URL from refspec
-            git push https://$GIT_USER:$GIT_PASS@github.com/Alex1-ai/Quiz-App.git -- HEAD:jenkins-jobs
+            # Use origin (already authenticated by Jenkins)
+            git push origin HEAD:jenkins-jobs
         '''
     }
 }
