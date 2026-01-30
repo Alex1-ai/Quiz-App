@@ -78,19 +78,21 @@ def githubCommit() {
     ]) {
 
         sh '''
-            git config --global user.email "jenkins@example.com"
-            git config --global user.name "jenkins"
+            set -e
 
-            git remote set-url origin https://$GIT_USER:$GIT_PASS@github.com/Alex1-ai/Quiz-App.git
+            git config user.email "jenkins@example.com"
+            git config user.name "jenkins"
+
+            git status
 
             git add .
             git commit -m "ci: version bump" || echo "No changes to commit"
-            git push origin HEAD:jenkins-jobs
+
+            git push https://$GIT_USER:$GIT_PASS@github.com/Alex1-ai/Quiz-App.git HEAD:jenkins-jobs
         '''
-
-
     }
 }
+
 
 
 return this
