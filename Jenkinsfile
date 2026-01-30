@@ -44,6 +44,8 @@ pipeline {
        stage("init") {
             steps {
                script {
+
+                  echo "adding groovy code"
                   gv = load "script.groovy"
 
                }
