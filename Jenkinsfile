@@ -103,6 +103,12 @@ pipeline {
         }
 
         stage("commit version update") {
+
+            when {
+                expression {
+                    BRANCH_NAME == 'main' || BRANCH_NAME == 'jenkins-shared-lib'
+                }
+            }
             steps {
                 script {
                     gv.githubCommit()
