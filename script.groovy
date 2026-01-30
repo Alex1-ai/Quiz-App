@@ -67,7 +67,6 @@ def deployApp() {
 }
 
 def githubCommit() {
-
     withCredentials([
             usernamePassword(
                     credentialsId: 'github-access-token-credentials',
@@ -75,20 +74,29 @@ def githubCommit() {
                     passwordVariable: 'GIT_PASS'
             )
     ]) {
-
         sh '''
             set -e
-
+            
+            # Configure git
             git config user.email "alexanderemmanuel1719@gmail.com"
             git config user.name "Alex1-ai"
-
+            
+            # Check current branch/state
+            echo "Current branch/state:"
+            git branch -a || true
             git status
-
+            
+            # Ensure we're on a branch, not in detached HEAD
+            # Try to checkout jenkins-jobs branch or create it
+            git checkout jenkins-jobs 2>/dev/null || git checkout -b jenkins-jobs
+            
+            # Add and commit changes
             git add pom.xml
             git commit -m "ci: version bump" || echo "No changes to commit"
-
-            # IMPORTANT: -- separates URL from refspec
-            git push https://$GIT_USER:$GIT_PASS@github.com/Alex1-ai/Quiz-App.git -- HEAD:jenkins-jobs
+            
+            # Push to the remote branch
+            # Double quotes for proper variable expansion
+            git push https://${GIT_USER}:${GIT_PASS}@github.com/Alex1-ai/Quiz-App.git jenkins-jobs
         '''
     }
 }
