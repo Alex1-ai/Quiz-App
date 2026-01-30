@@ -66,7 +66,6 @@ def deployApp() {
 
 }
 
-
 def githubCommit() {
 
     withCredentials([
@@ -85,10 +84,11 @@ def githubCommit() {
 
             git status
 
-            git add .
+            git add pom.xml
             git commit -m "ci: version bump" || echo "No changes to commit"
 
-            git push https://$GIT_USER:$GIT_PASS@github.com/Alex1-ai/Quiz-App.git HEAD:jenkins-jobs
+            # IMPORTANT: -- separates URL from refspec
+            git push https://$GIT_USER:$GIT_PASS@github.com/Alex1-ai/Quiz-App.git -- HEAD:jenkins-jobs
         '''
     }
 }
