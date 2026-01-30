@@ -53,6 +53,26 @@ pipeline {
 
         }
 
+        stage('increment version'){
+           steps {
+              script{
+                  echo "incrementing app version...."
+//                   gv.incrementAppVersion()
+                  sh "mvn build-helper:parse-version versions:set \
+                               -DnewVersion=\\\${parsedVersion.majorVersion}.\\\${parsedVersion.minorVersion}.\\\${parsedVersion.nextIncrementalVersion} \
+                               version:commit"
+
+                  def matcher = readFile('pom.xml') =~ '<version>(.*)</version>'
+                  def version = matcher[0][1]
+                  env.IMAGE_NAME = "$version-$BUILD_NUMBER"
+
+              }
+
+
+           }
+
+        }
+
         stage("test") {
 
 
@@ -66,6 +86,8 @@ pipeline {
 
             }
         }
+
+
 
 
         stage("build") {
@@ -100,11 +122,11 @@ pipeline {
             steps {
                script {
 
-                    buildImage 'chidi123/quiz-app:jma-2.5'
+
+
+                    buildImage "chidi123/quiz-app:${IMAGE_NAME}"
                     dockerLogin()
-                    dockerPush 'chidi123/quiz-app:jma-2.5'
-
-
+                    dockerPush "chidi123/quiz-app:${IMAGE_NAME}"
 
 //                      gv.buildImage()
 //                   echo "building the docker image..."
