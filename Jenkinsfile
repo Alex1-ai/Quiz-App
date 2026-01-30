@@ -33,7 +33,7 @@ pipeline {
         stage('increment version') {
             when {
                 expression {
-                    BRANCH_NAME == 'main' || BRANCH_NAME == 'jenkins-shared-lib'
+                    BRANCH_NAME == 'main'
                 }
             }
             steps {
@@ -77,7 +77,7 @@ pipeline {
         stage("build and push image") {
             when {
                 expression {
-                    BRANCH_NAME == 'main' || BRANCH_NAME == 'jenkins-shared-lib'
+                    BRANCH_NAME == 'main'
                 }
             }
             steps {
@@ -106,7 +106,7 @@ pipeline {
 
             when {
                 expression {
-                    BRANCH_NAME == 'main' || BRANCH_NAME == 'jenkins-shared-lib'
+                    BRANCH_NAME == 'main'
                 }
             }
             steps {
