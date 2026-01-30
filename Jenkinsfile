@@ -176,6 +176,20 @@ pipeline {
 
             }
 
+      stage("commit version update") {
+         steps {
+            script {
+
+              gv.githubCommit()
+
+            }
+
+
+         }
+
+      }
+
+
         }
     }
 //     post {
@@ -192,5 +206,3 @@ pipeline {
 //
 //     }
 
-
-}
