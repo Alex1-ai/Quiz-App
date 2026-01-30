@@ -31,6 +31,11 @@ pipeline {
         }
 
         stage('increment version') {
+            when {
+                expression {
+                    BRANCH_NAME == 'main' || BRANCH_NAME == 'jenkins-shared-lib'
+                }
+            }
             steps {
                 script {
                     echo "incrementing app version...."
