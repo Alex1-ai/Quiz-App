@@ -87,6 +87,8 @@ def githubCommit() {
             git commit -m "ci: version bump" || echo "No changes to commit"
             git push origin HEAD:jenkins-jobs
         '''
+
+
     }
 }
 
