@@ -17,17 +17,40 @@
 //
 //}
 
+def incrementAppVersion(){
+    sh "mvn build-helper:parse-version versions:set \
+                   -DnewVersion=\\\${parsedVersion.majorVersion}.\\\${parsedVersion.minorVersion}.\\\${parsedVersion.nextIncrementalVersion} \
+                   version:commit"
+
+    def matcher = readFile('pom.xml') =~ '<version>(.*)</version>'
+    def version = matcher[0][1]
+    env.IMAGE_NAME = "$version-$BUILD_NUMBER"
+}
+//
+//def buildImage() {
+//
+//    buildImage "chidi123/quiz-app:$IMAGE_NAME"
+//    dockerLogin()
+//    dockerPush "chidi123/quiz-app:$IMAGE_NAME"
+//}
+
 
 def testApp() {
 
+
+
     echo 'testing the application ....'
+
+
 
     echo "Executing pipeline for branch $BRANCH_NAME"
 
-    sh 'mvn test'
+    sh 'mvn clean test'
+
 }
 
 def deployApp() {
+
     echo 'deploying the application....'
 //    echo "deploying version ${params.VERSION}"
 
@@ -42,6 +65,38 @@ def deployApp() {
 //                }
 
 }
+
+def githubCommit() {
+    withCredentials([
+            usernamePassword(
+                    credentialsId: 'github-access-token-credentials',
+                    usernameVariable: 'GIT_USER',
+                    passwordVariable: 'GIT_PASS'
+            )
+    ]) {
+        sh '''
+            set -e
+
+            # Configure git
+            git config --global user.email "jenkins@example.com"
+            git config --global user.name "jenkins"
+
+            # Check current branch/state
+            echo "Current branch/state:"
+            git branch -a || true
+            git status
+
+            # Commit changes on detached HEAD
+            git add pom.xml
+            git commit -m "ci: version bump" || echo "No changes to commit"
+
+            # Push directly to main (force if needed)
+            git push https://${GIT_USER}:${GIT_PASS}@github.com/Alex1-ai/Quiz-App.git HEAD:main
+        '''
+    }
+}
+
+
 
 
 return this
