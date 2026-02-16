@@ -92,7 +92,7 @@ def githubCommit() {
 
             # Push directly to main (force if needed)
             git pull
-            git push https://${GIT_USER}:${GIT_PASS}@github.com/Alex1-ai/Quiz-App.git HEAD:jenkins-job
+            git push https://${GIT_USER}:${GIT_PASS}@github.com/Alex1-ai/Quiz-App.git HEAD:main
         '''
     }
 }
