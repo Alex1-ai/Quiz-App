@@ -28,8 +28,10 @@ pipeline {
                     def lastCommit = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
                     if (lastCommit.contains('[skip ci]')) {
                         echo "Skipping build - commit contains [skip ci]"
-                        currentBuild.result = 'SUCCESS'
-                        error('Stopping pipeline - [skip ci] detected')
+                        currentBuild.result = 'NOT_BUILT'
+                        currentBuild.description = 'Build skipped due to [skip ci]'
+                        // Don't use error(), just let it finish gracefully
+                        return
                     }
                 }
             }
