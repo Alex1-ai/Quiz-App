@@ -1,7 +1,5 @@
 #!/usr/bin/env groovy
 
-// @Library('jenkins-shared-library')
-
 library identifier: 'jenkins-shared-library@main', retriever: modernSCM(
    [$class: 'GitSCMSource',
     remote: 'https://github.com/Alex1-ai/jenkins-shared-library',
@@ -11,26 +9,31 @@ library identifier: 'jenkins-shared-library@main', retriever: modernSCM(
 
 def gv
 
-
 pipeline {
     agent any
+
+    options {
+        skipStagesAfterUnstable()
+    }
 
     tools {
         maven "maven-3.9"
     }
 
-    when {
-        not {
-            expression {
-                currentBuild.changeSets.any { change ->
-                    change.items.any { it.author.email == "jenkins@example.com" }
+    stages {
+
+        stage('Check if skip') {
+            steps {
+                script {
+                    def lastCommit = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
+                    if (lastCommit.contains('[skip ci]')) {
+                        echo "Skipping build - commit contains [skip ci]"
+                        currentBuild.result = 'SUCCESS'
+                        error('Stopping pipeline - [skip ci] detected')
+                    }
                 }
             }
         }
-    }
-
-
-    stages {
 
         stage("init") {
             steps {
@@ -78,10 +81,8 @@ pipeline {
                     BRANCH_NAME == 'main'
                 }
             }
-
             environment {
                DATABASE_URL = credentials('database_url')
-
             }
             steps {
                 script {
@@ -118,27 +119,12 @@ pipeline {
             }
             steps {
                 echo 'deploying docker image...'
-//                 sh 'kubectl create deployment nginx-deployment --image=nginx'
                 sh 'envsubst < kubernetes/deployment.yaml | kubectl apply -f -'
                 sh 'envsubst < kubernetes/service.yaml | kubectl apply -f -'
             }
         }
 
-//         stage("deploy") {
-//             when {
-//                 expression {
-//                     BRANCH_NAME == 'main'
-//                 }
-//             }
-//             steps {
-//                 script {
-//                     echo "Deploying ......"
-//                 }
-//             }
-//         }
-
         stage("commit version update") {
-
             when {
                 expression {
                     BRANCH_NAME == 'main'
@@ -147,6 +133,24 @@ pipeline {
             steps {
                 script {
                     gv.githubCommit()
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                // Check if build was triggered by Jenkins commit
+                def isJenkinsCommit = currentBuild.changeSets.any { cs ->
+                    cs.items.any { item ->
+                        item.msg.contains('[skip ci]') || item.author.fullName == 'jenkins'
+                    }
+                }
+
+                if (isJenkinsCommit) {
+                    echo "Build triggered by Jenkins commit - marking as success and stopping"
+                    currentBuild.result = 'SUCCESS'
                 }
             }
         }
