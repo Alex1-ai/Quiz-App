@@ -1,5 +1,7 @@
 #!/usr/bin/env groovy
 
+// @Library('jenkins-shared-library')
+
 library identifier: 'jenkins-shared-library@main', retriever: modernSCM(
    [$class: 'GitSCMSource',
     remote: 'https://github.com/Alex1-ai/jenkins-shared-library',
@@ -9,16 +11,22 @@ library identifier: 'jenkins-shared-library@main', retriever: modernSCM(
 
 def gv
 
+
 pipeline {
     agent any
 
     options {
+        // Skip polling if last commit was from Jenkins
         skipStagesAfterUnstable()
     }
+
 
     tools {
         maven "maven-3.9"
     }
+
+
+
 
     stages {
 
@@ -27,12 +35,9 @@ pipeline {
                 script {
                     def lastCommit = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
                     if (lastCommit.contains('[skip ci]')) {
-                        echo "✓ Skipping build - commit contains [skip ci]"
-                        currentBuild.result = 'NOT_BUILT'
-                        currentBuild.displayName = "#${BUILD_NUMBER} - SKIPPED"
-                        // Exit pipeline gracefully
-                        org.jenkinsci.plugins.pipeline.modeldefinition.Utils.markStageSkippedForConditional('Check if skip')
-                        return
+                        echo "Skipping build - commit contains [skip ci]"
+                        currentBuild.result = 'SUCCESS'
+                        error('Stopping pipeline - [skip ci] detected')
                     }
                 }
             }
@@ -84,8 +89,10 @@ pipeline {
                     BRANCH_NAME == 'main'
                 }
             }
+
             environment {
                DATABASE_URL = credentials('database_url')
+
             }
             steps {
                 script {
@@ -122,12 +129,27 @@ pipeline {
             }
             steps {
                 echo 'deploying docker image...'
+//                 sh 'kubectl create deployment nginx-deployment --image=nginx'
                 sh 'envsubst < kubernetes/deployment.yaml | kubectl apply -f -'
                 sh 'envsubst < kubernetes/service.yaml | kubectl apply -f -'
             }
         }
 
+//         stage("deploy") {
+//             when {
+//                 expression {
+//                     BRANCH_NAME == 'main'
+//                 }
+//             }
+//             steps {
+//                 script {
+//                     echo "Deploying ......"
+//                 }
+//             }
+//         }
+
         stage("commit version update") {
+
             when {
                 expression {
                     BRANCH_NAME == 'main'
@@ -139,7 +161,7 @@ pipeline {
                 }
             }
         }
-    }
+
 
     post {
         always {
@@ -157,6 +179,5 @@ pipeline {
                 }
             }
         }
-
     }
 }
