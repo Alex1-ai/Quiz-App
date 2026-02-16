@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.chidi</groupId>
 	<artifactId>quizapp</artifactId>
-	<version>0.0.10</version>
+	<version>0.0.11</version>
 	<name>quizapp</name>
 	<description>Quiz project for Spring Boot</description>
 	<properties>
