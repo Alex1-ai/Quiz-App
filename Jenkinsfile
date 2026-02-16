@@ -19,6 +19,13 @@ pipeline {
     tools {
         maven "maven-3.9"
     }
+    environment{
+       DOCKER_REPO_SERVER = '124355635435.dkr.ecr.us-east-1.amazonaws.com'
+       DOCKER_REPO="${DOCKER_REPO_SERVER}/quiz-app"
+       DATABASE_URL = credentials('database_url')
+
+
+    }
 
     stages {
 
@@ -81,9 +88,6 @@ pipeline {
             when {
                 branch 'main'
             }
-            environment {
-                DATABASE_URL = credentials('database_url')
-            }
             steps {
                 script {
                     gv.buildJar()
@@ -96,11 +100,22 @@ pipeline {
                 branch 'main'
             }
             steps {
+
                 script {
-                    gv.buildImage("chidi123/quiz-app:${IMAGE_NAME}")
-                    gv.dockerLogin()
-                    gv.dockerPush("chidi123/quiz-app:${IMAGE_NAME}")
+                   echo "building the docker image..."
+
+                   withCredentials([usernamePassword(credentialsId: 'ecr-credentials', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
+                       sh "docker build -t ${DOCKER_REPO}:${IMAGE_NAME} ."
+                       sh "echo $PASS docker login -u $USER --password-stdin ${DOCKER_REPO_SERVER}"
+                       sh "docker push ${DOCKER_REPO}:${IMAGE_NAME}"
+                   }
+
                 }
+//                 script {
+//                     gv.buildImage("chidi123/quiz-app:${IMAGE_NAME}")
+//                     gv.dockerLogin()
+//                     gv.dockerPush("chidi123/quiz-app:${IMAGE_NAME}")
+//                 }
             }
         }
 
