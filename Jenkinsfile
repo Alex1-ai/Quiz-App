@@ -67,6 +67,11 @@ pipeline {
                     BRANCH_NAME == 'main'
                 }
             }
+
+            environment {
+               DATABASE_URL = credentials('database_url')
+
+            }
             steps {
                 script {
                     buildJar()
@@ -89,18 +94,37 @@ pipeline {
             }
         }
 
-        stage("deploy") {
+        stage('deploy to kubernetes') {
             when {
                 expression {
                     BRANCH_NAME == 'main'
                 }
             }
+            environment {
+                AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
+                AWS_SECRET_ACCESS_KEY = credentials('jenkins_aws_secret_access_key')
+                APP_NAME = 'quiz-app'
+            }
             steps {
-                script {
-                    echo "Deploying ......"
-                }
+                echo 'deploying docker image...'
+//                 sh 'kubectl create deployment nginx-deployment --image=nginx'
+                sh 'envsubst < kubernetes/deployment.yaml | kubectl apply -f -'
+                sh 'envsubst < kubernetes/service.yaml | kubectl apply -f -'
             }
         }
+
+//         stage("deploy") {
+//             when {
+//                 expression {
+//                     BRANCH_NAME == 'main'
+//                 }
+//             }
+//             steps {
+//                 script {
+//                     echo "Deploying ......"
+//                 }
+//             }
+//         }
 
         stage("commit version update") {
 
