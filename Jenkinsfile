@@ -19,6 +19,17 @@ pipeline {
         maven "maven-3.9"
     }
 
+    when {
+        not {
+            expression {
+                currentBuild.changeSets.any { change ->
+                    change.items.any { it.author.email == "jenkins@example.com" }
+                }
+            }
+        }
+    }
+
+
     stages {
 
         stage("init") {
