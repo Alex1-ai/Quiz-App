@@ -27,10 +27,11 @@ pipeline {
                 script {
                     def lastCommit = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
                     if (lastCommit.contains('[skip ci]')) {
-                        echo "Skipping build - commit contains [skip ci]"
+                        echo "✓ Skipping build - commit contains [skip ci]"
                         currentBuild.result = 'NOT_BUILT'
-                        currentBuild.description = 'Build skipped due to [skip ci]'
-                        // Don't use error(), just let it finish gracefully
+                        currentBuild.displayName = "#${BUILD_NUMBER} - SKIPPED"
+                        // Exit pipeline gracefully
+                        org.jenkinsci.plugins.pipeline.modeldefinition.Utils.markStageSkippedForConditional('Check if skip')
                         return
                     }
                 }
