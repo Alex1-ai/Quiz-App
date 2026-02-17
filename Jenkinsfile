@@ -19,11 +19,12 @@ pipeline {
     tools {
         maven "maven-3.9"
     }
-
-    environment {
+    environment{
        DOCKER_REPO_SERVER = '124355635435.dkr.ecr.us-east-1.amazonaws.com'
-       DOCKER_REPO = "${DOCKER_REPO_SERVER}/quiz-app"
+       DOCKER_REPO="${DOCKER_REPO_SERVER}/quiz-app"
        DATABASE_URL = credentials('database_url')
+
+
     }
 
     stages {
@@ -38,7 +39,7 @@ pipeline {
 
                     if (lastCommit.contains('[skip ci]')) {
                         echo "Skipping build - commit contains [skip ci]"
-                        currentBuild.result = 'ABORTED'
+                        currentBuild.result = 'SUCCESS'
                         error('Stopping pipeline - [skip ci] detected')
                     }
                 }
@@ -98,26 +99,23 @@ pipeline {
             when {
                 branch 'main'
             }
-            environment {
-                AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
-                AWS_SECRET_ACCESS_KEY = credentials('jenkins_aws_secret_access_key')
-            }
             steps {
+
                 script {
-                    echo "Building and pushing Docker image to ECR..."
+                   echo "building the docker image..."
 
-                    // Build the image
-                    sh "docker build -t ${DOCKER_REPO}:${IMAGE_NAME} ."
+                   withCredentials([usernamePassword(credentialsId: 'ecr-credentials', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
+                       sh "docker build -t ${DOCKER_REPO}:${IMAGE_NAME} ."
+                       sh "echo $PASS | docker login -u $USER --password-stdin ${DOCKER_REPO_SERVER}"
+                       sh "docker push ${DOCKER_REPO}:${IMAGE_NAME}"
+                   }
 
-                    // Login to ECR using AWS CLI
-                    sh """
-                        aws ecr get-login-password --region us-east-1 | \
-                        docker login --username AWS --password-stdin ${DOCKER_REPO_SERVER}
-                    """
-
-                    // Push the image
-                    sh "docker push ${DOCKER_REPO}:${IMAGE_NAME}"
                 }
+//                 script {
+//                     gv.buildImage("chidi123/quiz-app:${IMAGE_NAME}")
+//                     gv.dockerLogin()
+//                     gv.dockerPush("chidi123/quiz-app:${IMAGE_NAME}")
+//                 }
             }
         }
 
@@ -126,7 +124,7 @@ pipeline {
                 branch 'main'
             }
             environment {
-                AWS_ACCESS_KEY_ID = credentials('jenkins_aws_access_key_id')
+                AWS_ACCESS_KEY_ID     = credentials('jenkins_aws_access_key_id')
                 AWS_SECRET_ACCESS_KEY = credentials('jenkins_aws_secret_access_key')
                 APP_NAME = 'quiz-app'
             }
